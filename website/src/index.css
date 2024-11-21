@@ -1,0 +1,27 @@
+* {
+    border-style: none;
+    color: black;
+    flex: none;
+    font-family: Roboto;
+    font-size: 15px;
+    font-weight: 400;
+    margin: 0;
+    overflow-x: hidden;
+    padding: 0;
+    text-decoration: none;
+}
+div {
+    background-color: transparent;
+}
+div * {
+    background-color: transparent;
+}
+button {
+    display: flex;
+}
+button * {
+    text-align: start;
+}
+button:hover {
+    cursor: pointer;
+}
