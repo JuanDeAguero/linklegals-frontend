@@ -116,6 +116,7 @@ nav {
     overflow: hidden;
     justify-content: center;
     filter: drop-shadow(0px 0px 7px #e5e5e5);
+    -webkit-transform: translateZ(0);
 }
 .uscis, .doc, .logo-welcome {
     position: absolute;
