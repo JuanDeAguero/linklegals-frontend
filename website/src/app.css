@@ -144,6 +144,10 @@ footer {
 .about-guide-subtitle {
     margin-left: 15px;
 }
+.about-guide-mobile {
+    visibility: collapse;
+    height: 0;
+}
 @media only screen and (min-width: 0) and (max-width: 1049px) {
     nav {
         overflow: visible;
@@ -216,8 +220,32 @@ footer {
         width: calc(100% - 40px);
         padding-left: 20px;
         padding-right: 20px;
+        overflow: hidden;
+        height: calc(100vh - 60px);
     }
     .about-title, .about-subtitle, .about-text {
         width: 100%;
+    }
+    .about-title {
+        margin-top: 60px;
+    }
+    .about-subtitle {
+        margin-top: 30px;
+    }
+    .about-guide-mobile {
+        visibility: visible;
+        position: absolute;
+        width: 100%;
+        height: 40px;
+        left: 0;
+        top: 5px;
+        background-color: rgb(240, 240, 240, 0.5);
+        display: flex;
+        align-items: center;
+        padding-left: 20px;
+        backdrop-filter: blur(20px);
+    }
+    .about-guide-mobile-button {
+        margin-right: 20px;
     }
 }

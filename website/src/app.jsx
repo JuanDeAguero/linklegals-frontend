@@ -10,7 +10,7 @@ const Home = () => <div className="landing-page">
     </div>
 </div>
 
-const About = () => {
+const About = ({ isMobile, showMenu, scrollY }) => {
     
     const ourStoryRef = useRef(null)
     const innovateRef = useRef(null)
@@ -22,9 +22,20 @@ const About = () => {
     const callToActionRef = useRef(null)
     const researchRef = useRef(null)
     const collaborationsRef = useRef(null)
+
+    const scrollToElementWithOffset = (elementRef, offset = 0) => {
+        if (elementRef && elementRef.current) {
+            const elementPosition = elementRef.current.getBoundingClientRect().top
+            const offsetPosition = elementPosition + window.scrollY + offset
+            window.scrollTo({
+                top: offsetPosition,
+                behavior: "smooth"
+            })
+        }
+    }
   
     return (
-      <div className="page">
+      <div className="page" style={{ overflow: showMenu && isMobile ? "hidden" : "auto", height: showMenu && isMobile ? "calc(100vh - 60px)" : "auto" }}>
         <div className="about-guide">
           <button className="about-guide-button" onClick={() => ourStoryRef.current.scrollIntoView({ behavior: "smooth" })}>Our Story</button>
           <button className="about-guide-button about-guide-subtitle" onClick={() => innovateRef.current.scrollIntoView({ behavior: "smooth" })}>Innovate, Connect, Empower</button>
@@ -36,6 +47,11 @@ const About = () => {
           <button className="about-guide-button about-guide-subtitle" onClick={() => callToActionRef.current.scrollIntoView({ behavior: "smooth" })}>Call to Action</button>
           <button className="about-guide-button" onClick={() => researchRef.current.scrollIntoView({ behavior: "smooth" })}>Research</button>
           <button className="about-guide-button" onClick={() => collaborationsRef.current.scrollIntoView({ behavior: "smooth" })}>Collaborations</button>
+        </div>
+        <div className="about-guide-mobile" style={{ position: scrollY < 65 ? "absolute" : "fixed", top: scrollY < 65 ? "5px" : "0" }}>
+            <button className="about-guide-mobile-button" onClick={() => scrollToElementWithOffset(ourStoryRef, -40)}>1. Our Story</button>
+            <button className="about-guide-mobile-button" onClick={() => scrollToElementWithOffset(researchRef, -40)}>2. Research</button>
+            <button className="about-guide-mobile-button" onClick={() => scrollToElementWithOffset(collaborationsRef, -40)}>3. Collaborations</button>
         </div>
         <div className="about-title" ref={ourStoryRef}>Our Story</div>
         <div className="about-subtitle" ref={innovateRef}>Innovate, Connect, Empower</div>
@@ -71,7 +87,7 @@ const TranslatorGPT = () => <div className="page"></div>
 const BackgroundGradient = () => {
     const location = useLocation()
     return <>
-        <div className="background-gradient" style={{ height: location.pathname === "/" ? "100vh" : "5px", top: location.pathname === "/" ? "0" : "60px" }} />
+        <div className="background-gradient" style={{ height: location.pathname === "/" ? "100vh" : "5px", top: location.pathname === "/" ? "0" : "60px", zIndex: location.pathname === "/" ? "-1" : "2" }} />
     </>
     
 }
@@ -86,9 +102,9 @@ const App = () => {
         const handleResize = () => {
             setIsMobile(window.innerWidth < 1050);
         };
-        window.addEventListener('resize', handleResize);
+        window.addEventListener("resize", handleResize);
         return () => {
-            window.removeEventListener('resize', handleResize);
+            window.removeEventListener("resize", handleResize);
         };
     }, []);
 
@@ -100,6 +116,24 @@ const App = () => {
         }
     }, [isMobile])
 
+    const onLinkClick = () => {
+        if (isMobile) {
+            setShowMenu(false)
+        }
+    }
+
+    const [scrollY, setScrollY] = useState(0)
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrollY(window.scrollY)
+        }
+        window.addEventListener("scroll", handleScroll)
+        return () => {
+            window.removeEventListener("scroll", handleScroll)
+        }
+    }, [])
+
     return (
     <Router>
         <div className="app">
@@ -108,11 +142,11 @@ const App = () => {
                 <div className="nav-content">
                     <img className="logo" src="logo.png" />
                     {showMenu ? <div className="nav-right">
-                        <Link to="/" onClick={() => setShowMenu(false)} className="nav-button">Home</Link>
-                        <Link to="/about" onClick={() => setShowMenu(false)} className="nav-button">About</Link>
-                        <Link to="/" onClick={() => setShowMenu(false)} className="nav-button">Services</Link>
-                        <Link to="/" onClick={() => setShowMenu(false)} className="nav-button">Contact</Link>
-                        <Link to="/" onClick={() => setShowMenu(false)} className="nav-button">Translator GPT</Link>
+                        <Link to="/" onClick={onLinkClick} className="nav-button">Home</Link>
+                        <Link to="/about" onClick={onLinkClick} className="nav-button">About</Link>
+                        <Link to="/" onClick={onLinkClick} className="nav-button">Services</Link>
+                        <Link to="/" onClick={onLinkClick} className="nav-button">Contact</Link>
+                        <Link to="/" onClick={onLinkClick} className="nav-button">Translator GPT</Link>
                         <div className="nav-right-background" />
                     </div> : null}
                     <button className="menu" onClick={() => setShowMenu(!showMenu)}>
@@ -122,7 +156,7 @@ const App = () => {
             </nav>
             <Routes>
                 <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
+                <Route path="/about" element={<About isMobile={isMobile} showMenu={showMenu} scrollY={scrollY} />} />
                 <Route path="/services" element={<Services />} />
                 <Route path="/contact" element={<Contact />} />
                 <Route path="/translator-gpt" element={<TranslatorGPT />} />
