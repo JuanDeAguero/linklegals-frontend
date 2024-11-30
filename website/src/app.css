@@ -4,7 +4,7 @@
     flex-direction: column;
 }
 nav {
-    height: 90px;
+    height: 60px;
     width: 100%;
     display: flex;
     justify-content: center;
@@ -15,44 +15,58 @@ nav {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 1200px;
+    width: 1000px;
+}
+.menu {
+    visibility: hidden;
+    position: absolute;
+    height: 0;
 }
 .logo {
-    height: 50px;
+    height: 35px;
 }
 .nav-right {
     display: flex;
 }
 .nav-button {
-    font-size: 20px;
+    font-size: 16px;
     padding-left: 15px;
     padding-right: 15px;
     margin-left: 5px;
-    height: 40px;
+    height: 35px;
     align-items: center;
     border-radius: 20px;
+    display: flex;
 }
 .nav-button:hover {
     background-color: rgba(0, 0, 0, 0.05);
 }
 .landing-page {
-    width: 100px;
-    width: 1200px;
-    margin-bottom: 140px;
+    height: calc(100vh - 60px);
+    width: 1000px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.landing-page-content {
+    display: flex;
+    flex-direction: column;
+    backdrop-filter: blur(100px);
+    padding: 20px;
+    margin-bottom: 50px;
 }
 .title {
-    margin-top: 180px;
-    font-size: 90px;
+    font-size: 60px;
     font-weight: 500;
 }
 .subtitle {
     margin-top: 50px;
-    font-size: 50px;
+    font-size: 40px;
     width: 950px;
 }
 .learn-more {
     margin-top: 80px;
-    font-size: 30px;
+    font-size: 20px;
 }
 .learn-more:hover {
     text-decoration: underline;
@@ -60,11 +74,16 @@ nav {
 .background-gradient {
     position: absolute;
     width: 100%;
-    height: 800px;
+    height: 100vh;
     z-index: -1;
     background: radial-gradient(circle at center, #ff7eb3, #a29bfe, #81ecec, #6c5ce7);
     background-size: 200% 200%;
     animation: stripeGradientAnimation 15s infinite alternate ease-in-out;
+}
+.background-black {
+    position: absolute;
+    width: 100%;
+    height: 100vh;
 }
 @keyframes stripeGradientAnimation {
     0% {
@@ -83,55 +102,122 @@ nav {
         background-position: 0% 50%;
     }
 }
-.welcome {
-    width: 1200px;
-    margin-top: 70px;
-    margin-bottom: 70px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow: visible;
-}
-.welcome-title {
-    font-size: 30px;
-    margin-bottom: 20px;
-}
-.welcome-text {
-    font-size: 22px;
-    width: 600px;
-    text-align: center;
-    z-index: 1;
-}
-.welcome-section {
-    margin-bottom: 50px;
-    display: flex;
-    flex-direction: column;
-    background-color: rgb(255, 255, 255);
-    border-radius: 30px;
-    padding: 25px;
-    align-items: center;
-    width: 950px;
-    height: 150px;
-    position: relative;
-    overflow: hidden;
-    justify-content: center;
-    filter: drop-shadow(0px 0px 7px #e5e5e5);
-    -webkit-transform: translateZ(0);
-}
-.uscis, .doc, .logo-welcome {
-    position: absolute;
-    height: 200px;
-    left: 10px;
-    bottom: -50px;
-    opacity: 0.1;
-}
-.logo-welcome {
-    width: 200px;
-    object-fit: cover;
-    object-position: 0 100%;
-}
 footer {
     width: 100%;
     height: 200px;
     background-color: rgb(185, 185, 185);
+}
+.page {
+    position: relative;
+    width: 1000px;
+    overflow: visible;
+}
+.about-title {
+    font-size: 30px;
+    font-weight: 500;
+    margin-top: 50px;
+}
+.about-subtitle {
+    font-size: 20px;
+    margin-top: 40px;
+    font-weight: 500;
+}
+.about-text {
+    font-size: 18px;
+    width: 500px;
+    margin-top: 20px;
+}
+.about-guide {
+    position: fixed;
+    top: 120px;
+    right: calc((100vw - 1000px) / 2);
+}
+.about-guide-button {
+    height: 40px;
+    align-items: center;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+.about-guide-button:hover {
+    background-color: rgb(240, 240, 240);
+}
+.about-guide-subtitle {
+    margin-left: 15px;
+}
+@media only screen and (min-width: 0) and (max-width: 1049px) {
+    nav {
+        overflow: visible;
+        z-index: 1;
+    }
+    .nav-content {
+        width: 100%;
+        position: relative;
+        overflow: visible;
+    }
+    .menu {
+        visibility: visible;
+        position: absolute;
+        height: 30px;
+        right: 20px;
+    }
+    .menu-icon {
+        height: 100%;
+    }
+    .landing-page {
+        width: 100%;
+    }
+    .landing-page-content {
+        backdrop-filter: blur(0px);
+    }
+    .title {
+        width: calc(100% - 0px);
+        margin-left: 0px;
+        font-size: 50px;
+    }
+    .subtitle {
+        width: calc(100% - 0px);
+        margin-left: 0px;
+        font-size: 30px;
+    }
+    .learn-more {
+        width: calc(100% - 0px);
+        margin-left: 0px;
+        font-size: 20px;
+    }
+    .logo {
+        margin-left: 20px;
+    }
+    .nav-button {
+        margin-left: 0;
+        border-radius: 0;
+    }
+    .nav-right {
+        padding-top: 20px;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        width: 100%;
+        background-color: rgb(240, 240, 240, 0.5);
+        height: calc(100vh - 60px - 20px);
+    }
+    .nav-right-background {
+        position: absolute;
+        width: 100%;
+        height: calc(100%);
+        z-index: -1;
+        margin-top: -20px;
+        background: radial-gradient(circle at center, #ff7eb3, #a29bfe, #81ecec, #6c5ce7);
+        background-size: 200% 200%;
+    }
+    .about-guide {
+        visibility: hidden;
+    }
+    .page {
+        width: calc(100% - 40px);
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+    .about-title, .about-subtitle, .about-text {
+        width: 100%;
+    }
 }
