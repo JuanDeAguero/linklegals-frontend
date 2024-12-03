@@ -110,11 +110,17 @@ footer {
 .page {
     position: relative;
     width: 1000px;
-    overflow: visible;
+    overflow: hidden;
+}
+.about-last {
+    margin-bottom: 100vh;
 }
 .about-title {
     font-size: 30px;
     font-weight: 500;
+    margin-top: 50px;
+}
+.about-first {
     margin-top: 50px;
 }
 .about-subtitle {
@@ -127,10 +133,24 @@ footer {
     width: 500px;
     margin-top: 20px;
 }
+.about-quote, .about-jensen {
+    color: rgb(100, 100, 100);
+}
+.about-jensen {
+    text-align: right;
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
 .about-guide {
     position: fixed;
     top: 120px;
     right: calc((100vw - 1000px) / 2);
+}
+.about-guide-prev {
+    color: gray;
+}
+.about-guide-curr {
+    font-weight: 500;
 }
 .about-guide-button {
     height: 40px;
@@ -145,8 +165,25 @@ footer {
     margin-left: 15px;
 }
 .about-guide-mobile {
-    visibility: collapse;
-    height: 0;
+    visibility: visible;
+    position: absolute;
+    width: 100vw;
+    height: 40px;
+    left: 0;
+    top: 5px;
+    background-color: rgb(240, 240, 240, 0.5);
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    backdrop-filter: blur(20px);
+    display: flex;
+}
+.about-guide-mobile-button {
+    margin-right: 20px;
+}
+.about-guide-mobile-title {
+    width: 1000px;
+    margin-left: -15px;
 }
 @media only screen and (min-width: 0) and (max-width: 1049px) {
     nav {
@@ -226,26 +263,13 @@ footer {
     .about-title, .about-subtitle, .about-text {
         width: 100%;
     }
-    .about-title {
+    .about-first {
         margin-top: 60px;
     }
     .about-subtitle {
         margin-top: 30px;
     }
     .about-guide-mobile {
-        visibility: visible;
-        position: absolute;
         width: 100%;
-        height: 40px;
-        left: 0;
-        top: 5px;
-        background-color: rgb(240, 240, 240, 0.5);
-        display: flex;
-        align-items: center;
-        padding-left: 20px;
-        backdrop-filter: blur(20px);
-    }
-    .about-guide-mobile-button {
-        margin-right: 20px;
     }
 }
