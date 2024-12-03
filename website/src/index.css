@@ -9,6 +9,7 @@
     overflow-x: hidden;
     padding: 0;
     text-decoration: none;
+    box-sizing: border-box;
 }
 div {
     background-color: transparent;
