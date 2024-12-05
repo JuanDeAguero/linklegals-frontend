@@ -112,6 +112,14 @@ footer {
     width: 1000px;
     overflow: hidden;
 }
+.about-img {
+    margin-top: 30px;
+    width: 500px;
+}
+.about-img-au {
+    margin-top: 50px;
+    width: 200px;
+}
 .about-last {
     margin-bottom: 100vh;
 }
@@ -121,20 +129,34 @@ footer {
     margin-top: 50px;
 }
 .about-first {
-    margin-top: 50px;
+    margin-top: 40px;
 }
 .about-subtitle {
     font-size: 20px;
     margin-top: 40px;
     font-weight: 500;
 }
+.about-subtitle-2 {
+    font-size: 18px;
+    margin-top: 15px;
+}
 .about-text {
     font-size: 18px;
     width: 500px;
     margin-top: 20px;
 }
+.about-text-underline {
+    font-size: 18px;
+    text-decoration: underline;
+}
+.about-text-bold {
+    font-size: 18px;
+    font-weight: 500;
+}
 .about-quote, .about-jensen {
-    color: rgb(100, 100, 100);
+    font-family: Times;
+    font-style: italic;
+    font-size: 20px;
 }
 .about-jensen {
     text-align: right;
@@ -239,7 +261,7 @@ footer {
         top: 60px;
         width: 100%;
         background-color: rgb(240, 240, 240, 0.5);
-        height: calc(100vh - 60px - 20px);
+        height: calc(100vh - 60px);
     }
     .nav-right-background {
         position: absolute;
@@ -258,7 +280,6 @@ footer {
         padding-left: 20px;
         padding-right: 20px;
         overflow: hidden;
-        height: calc(100vh - 60px);
     }
     .about-title, .about-subtitle, .about-text {
         width: 100%;
@@ -272,4 +293,87 @@ footer {
     .about-guide-mobile {
         width: 100%;
     }
+    .about-img {
+        width: 100%;
+    }
+}
+
+
+
+
+
+
+/* Contact Form Styles */
+
+.contact-form {
+    max-width: 600px;
+    margin-top: 50px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    position: relative;
+}
+
+.form-group {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group label {
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+.form-group input,
+.form-group textarea {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+    resize: vertical;
+}
+
+.form-group .input-error {
+    border-color: #e74c3c;
+}
+
+.error {
+    color: #e74c3c;
+    margin-top: 5px;
+    font-size: 14px;
+}
+
+.submit-button {
+    padding: 12px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: #0056b3;
+}
+
+.success-message {
+    margin-top: 20px;
+    padding: 20px;
+    background-color: #dff0d8;
+    border: 1px solid #d6e9c6;
+    border-radius: 8px;
+}
+
+.success-message h2 {
+    color: #3c763d;
+    margin-bottom: 10px;
+}
+
+.success-message p {
+    color: #3c763d;
+    font-size: 16px;
 }
