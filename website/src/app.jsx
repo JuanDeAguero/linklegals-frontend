@@ -303,7 +303,86 @@ const Contact = ({ isMobile, showMenu }) => {
     )
 }
 
-const TranslatorGPT = () => <div className="page"></div>
+
+const BuildYourCase = () => {
+    const [messages, setMessages] = useState([]);
+    const [inputValue, setInputValue] = useState('');
+    const [isLoadingReply, setIsLoadingReply] = useState(false);
+  
+    const sendMessage = () => {
+      if (!inputValue.trim()) return;
+  
+      const newMessage = {
+        text: inputValue,
+        side: 'right',
+        id: Date.now()
+      };
+  
+      const loadingMessage = {
+        text: '',
+        side: 'left',
+        id: Date.now() + 1,
+        isLoading: true
+      };
+  
+      setInputValue('');
+  
+      setMessages((prev) => [...prev, newMessage, loadingMessage]);
+      setIsLoadingReply(true);
+    };
+  
+    useEffect(() => {
+      let timer;
+      if (isLoadingReply) {
+        timer = setTimeout(() => {
+          setMessages((prev) => {
+            const withoutLoading = prev.filter((m) => !m.isLoading);
+            return [
+              ...withoutLoading,
+              {
+                text: "This chat is not currently available. Visit: chatgpt.com/g/g-0XSyOjwUj-q",
+                side: 'left',
+                id: Date.now()
+              }
+            ];
+          });
+          setIsLoadingReply(false);
+        }, 2000);
+      }
+  
+      return () => clearTimeout(timer);
+    }, [isLoadingReply]);
+  
+    return (
+      <div className="page">
+        <div className="chat">
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={message.side === 'right' ? 'chat-message-right' : 'chat-message-left'}
+            >
+              {message.isLoading ? <div className="loading-spinner"></div> : message.text}
+            </div>
+          ))}
+        </div>
+        <div className="chat-input">
+          <input
+            className="chat-input-text"
+            type="text"
+            placeholder="Message Q..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+          />
+          <div className="chat-bottom">
+            <button className="chat-send-button" onClick={sendMessage}>
+              SEND
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
 const BackgroundGradient = () => {
     const location = useLocation()
@@ -323,11 +402,11 @@ const App = () => {
         const handleResize = () => {
             setIsMobile(window.innerWidth < 1050);
         };
-        window.addEventListener("resize", handleResize);
+        window.addEventListener("resize", handleResize)
         return () => {
-            window.removeEventListener("resize", handleResize);
+            window.removeEventListener("resize", handleResize)
         };
-    }, []);
+    }, [])
 
     useEffect(() => {
         if (isMobile) {
@@ -376,7 +455,7 @@ const App = () => {
                         <Link to="/about" onClick={onLinkClick} className="nav-button">About</Link>
                         <Link to="/services" onClick={onLinkClick} className="nav-button">Services</Link>
                         <Link to="/contact" onClick={onLinkClick} className="nav-button">Contact</Link>
-                        <Link to="/" onClick={onLinkClick} className="nav-button">Translator GPT</Link>
+                        <Link to="/translator-gpt" onClick={onLinkClick} className="nav-button">Build Your Case</Link>
                         <div className="nav-right-background" />
                     </div> : null}
                     <button className="menu" onClick={() => setShowMenu(!showMenu)}>
@@ -389,7 +468,7 @@ const App = () => {
                 <Route path="/about" element={<About isMobile={isMobile} showMenu={showMenu} scrollY={scrollY} />} />
                 <Route path="/services" element={<Services isMobile={isMobile} showMenu={showMenu} />} />
                 <Route path="/contact" element={<Contact isMobile={isMobile} showMenu={showMenu} />} />
-                <Route path="/translator-gpt" element={<TranslatorGPT />} />
+                <Route path="/translator-gpt" element={<BuildYourCase />} />
             </Routes>
         </div>
     </Router> : <div>This website doesn't work on Safari. Try using Google Chrome.</div>}
