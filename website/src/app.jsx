@@ -304,7 +304,7 @@ const Contact = ({ isMobile, showMenu }) => {
 }
 
 
-const BuildYourCase = () => {
+const BuildYourCase = ({ isMobile, showMenu }) => {
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [isLoadingReply, setIsLoadingReply] = useState(false);
@@ -354,7 +354,7 @@ const BuildYourCase = () => {
     }, [isLoadingReply]);
   
     return (
-      <div className="page">
+      <div className="page" style={{ overflow: showMenu && isMobile ? "hidden" : "auto", height: showMenu && isMobile ? "calc(100vh - 60px)" : "auto" }}>
         <div className="chat">
           {messages.map((message) => (
             <div
@@ -455,7 +455,7 @@ const App = () => {
                         <Link to="/about" onClick={onLinkClick} className="nav-button">About</Link>
                         <Link to="/services" onClick={onLinkClick} className="nav-button">Services</Link>
                         <Link to="/contact" onClick={onLinkClick} className="nav-button">Contact</Link>
-                        <Link to="/translator-gpt" onClick={onLinkClick} className="nav-button">Build Your Case</Link>
+                        <Link to="/buid-your-case" onClick={onLinkClick} className="nav-button">Build Your Case</Link>
                         <div className="nav-right-background" />
                     </div> : null}
                     <button className="menu" onClick={() => setShowMenu(!showMenu)}>
@@ -468,7 +468,7 @@ const App = () => {
                 <Route path="/about" element={<About isMobile={isMobile} showMenu={showMenu} scrollY={scrollY} />} />
                 <Route path="/services" element={<Services isMobile={isMobile} showMenu={showMenu} />} />
                 <Route path="/contact" element={<Contact isMobile={isMobile} showMenu={showMenu} />} />
-                <Route path="/translator-gpt" element={<BuildYourCase />} />
+                <Route path="/buid-your-case" element={<BuildYourCase isMobile={isMobile} showMenu={showMenu} />} />
             </Routes>
         </div>
     </Router> : <div>This website doesn't work on Safari. Try using Google Chrome.</div>}
