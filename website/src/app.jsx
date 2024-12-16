@@ -303,11 +303,11 @@ const Contact = ({ isMobile, showMenu }) => {
     )
 }
 
-
 const BuildYourCase = ({ isMobile, showMenu }) => {
     const [messages, setMessages] = useState([]);
     const [inputValue, setInputValue] = useState('');
     const [isLoadingReply, setIsLoadingReply] = useState(false);
+    const sentMessageRef = useRef(null);
   
     const sendMessage = () => {
       if (!inputValue.trim()) return;
@@ -326,7 +326,6 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
       };
   
       setInputValue('');
-  
       setMessages((prev) => [...prev, newMessage, loadingMessage]);
       setIsLoadingReply(true);
     };
@@ -353,12 +352,25 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
       return () => clearTimeout(timer);
     }, [isLoadingReply]);
   
+    useEffect(() => {
+      if (sentMessageRef.current) {
+        sentMessageRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, [messages]);
+  
     return (
-      <div className="page" style={{ overflow: showMenu && isMobile ? "hidden" : "auto", height: showMenu && isMobile ? "calc(100vh - 60px)" : "auto" }}>
+      <div
+        className="page"
+        style={{
+          overflow: showMenu && isMobile ? 'hidden' : 'auto',
+          height: showMenu && isMobile ? 'calc(100vh - 60px)' : 'auto'
+        }}
+      >
         <div className="chat">
-          {messages.map((message) => (
+          {messages.map((message, index) => (
             <div
               key={message.id}
+              ref={message.side === 'right' && index === messages.length - 2 ? sentMessageRef : null}
               className={message.side === 'right' ? 'chat-message-right' : 'chat-message-left'}
             >
               {message.isLoading ? <div className="loading-spinner"></div> : message.text}
@@ -383,6 +395,7 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
       </div>
     );
   };
+  
 
 const BackgroundGradient = () => {
     const location = useLocation()
