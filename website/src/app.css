@@ -208,103 +208,10 @@ footer {
     width: 1000px;
     margin-left: -15px;
 }
-@media only screen and (min-width: 0) and (max-width: 1049px) {
-    nav {
-        overflow: visible;
-        z-index: 1;
-    }
-    .nav-content {
-        width: 100%;
-        position: relative;
-        overflow: visible;
-    }
-    .menu {
-        visibility: visible;
-        position: absolute;
-        height: 30px;
-        right: 20px;
-    }
-    .menu-icon {
-        height: 100%;
-    }
-    .landing-page {
-        width: 100%;
-    }
-    .landing-page-content {
-        backdrop-filter: blur(0px);
-    }
-    .title {
-        width: calc(100% - 0px);
-        margin-left: 0px;
-        font-size: 50px;
-    }
-    .subtitle {
-        width: calc(100% - 0px);
-        margin-left: 0px;
-        font-size: 30px;
-    }
-    .learn-more {
-        width: calc(100% - 0px);
-        margin-left: 0px;
-        font-size: 20px;
-    }
-    .logo {
-        margin-left: 20px;
-    }
-    .nav-button {
-        margin-left: 0;
-        border-radius: 0;
-    }
-    .nav-right {
-        padding-top: 20px;
-        flex-direction: column;
-        position: absolute;
-        top: 60px;
-        width: 100%;
-        background-color: rgb(240, 240, 240, 0.5);
-        height: calc(100vh - 60px);
-    }
-    .nav-right-background {
-        position: absolute;
-        width: 100%;
-        height: calc(100%);
-        z-index: -1;
-        margin-top: -20px;
-        background: radial-gradient(circle at center, #ff7eb3, #a29bfe, #81ecec, #6c5ce7);
-        background-size: 200% 200%;
-    }
-    .about-guide {
-        visibility: hidden;
-    }
-    .page {
-        width: calc(100%);
-        padding-left: 20px;
-        padding-right: 20px;
-        overflow: hidden;
-    }
-    .about-title, .about-subtitle, .about-text {
-        width: 100%;
-    }
-    .about-first {
-        margin-top: 60px;
-    }
-    .about-subtitle {
-        margin-top: 30px;
-    }
-    .about-guide-mobile {
-        width: 100%;
-    }
-    .about-img {
-        width: 100%;
-    }
-}
 
 
 
 
-
-
-/* Contact Form Styles */
 
 .contact-form {
     max-width: 600px;
@@ -406,10 +313,13 @@ footer {
 .chat-input {
     background-color: rgb(200, 200, 200);
     height: 100px;
-    width: 100%;
+    width: 1000px;
     display: flex;
     flex-direction: column;
     border-radius: 20px;
+    position: fixed;
+    bottom: 20px;
+    left: calc((100vw - 1000px) / 2);
 }
 .chat-input-text {
     width: 100%;
@@ -457,3 +367,102 @@ footer {
     }
   }
   
+
+
+
+
+  @media only screen and (min-width: 0) and (max-width: 1049px) {
+    nav {
+        overflow: visible;
+        z-index: 1;
+    }
+    .nav-content {
+        width: 100%;
+        position: relative;
+        overflow: visible;
+    }
+    .menu {
+        visibility: visible;
+        position: absolute;
+        height: 30px;
+        right: 20px;
+    }
+    .menu-icon {
+        height: 100%;
+    }
+    .landing-page {
+        width: 100%;
+    }
+    .landing-page-content {
+        backdrop-filter: blur(0px);
+    }
+    .title {
+        width: calc(100% - 0px);
+        margin-left: 0px;
+        font-size: 50px;
+    }
+    .subtitle {
+        width: calc(100% - 0px);
+        margin-left: 0px;
+        font-size: 30px;
+    }
+    .learn-more {
+        width: calc(100% - 0px);
+        margin-left: 0px;
+        font-size: 20px;
+    }
+    .logo {
+        margin-left: 20px;
+    }
+    .nav-button {
+        margin-left: 0;
+        border-radius: 0;
+    }
+    .nav-right {
+        padding-top: 20px;
+        flex-direction: column;
+        position: absolute;
+        top: 60px;
+        width: 100%;
+        background-color: rgb(240, 240, 240, 0.5);
+        height: calc(100vh - 60px);
+    }
+    .nav-right-background {
+        position: absolute;
+        width: 100%;
+        height: calc(100%);
+        z-index: -1;
+        margin-top: -20px;
+        background: radial-gradient(circle at center, #ff7eb3, #a29bfe, #81ecec, #6c5ce7);
+        background-size: 200% 200%;
+    }
+    .about-guide {
+        visibility: hidden;
+    }
+    .page {
+        width: calc(100%);
+        padding-left: 20px;
+        padding-right: 20px;
+        overflow: hidden;
+    }
+    .about-title, .about-subtitle, .about-text {
+        width: 100%;
+    }
+    .about-first {
+        margin-top: 60px;
+    }
+    .about-subtitle {
+        margin-top: 30px;
+    }
+    .about-guide-mobile {
+        width: 100%;
+    }
+    .about-img {
+        width: 100%;
+    }
+    .chat-input {
+        width: calc(100vw - 40px);
+        left: 20px;
+    }
+
+}
