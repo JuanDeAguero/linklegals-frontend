@@ -432,6 +432,9 @@ footer {
     color: white;
     border-radius: 20px;
 }
+.chat-send-button:hover {
+    background-color: rgb(50, 132, 255);
+}
 .chat-bottom {
     display: flex;
     height: 40px;
