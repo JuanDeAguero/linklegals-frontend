@@ -47,6 +47,7 @@ nav {
     display: flex;
     flex-direction: column;
     justify-content: center;
+    overflow: visible;
 }
 .landing-page-content {
     display: flex;
@@ -54,6 +55,7 @@ nav {
     backdrop-filter: blur(100px);
     padding: 20px;
     margin-bottom: 50px;
+    overflow: visible;
 }
 .title {
     font-size: 60px;
@@ -70,6 +72,12 @@ nav {
 }
 .learn-more:hover {
     text-decoration: underline;
+}
+.iphone {
+    position: absolute;
+    right: -700px;
+    top: -80px;
+    width: 1200px;
 }
 .background-gradient {
     position: absolute;
@@ -206,7 +214,6 @@ footer {
 }
 .about-guide-mobile-title {
     width: 1000px;
-    margin-left: -15px;
 }
 
 
@@ -216,7 +223,6 @@ footer {
 .contact-form {
     max-width: 600px;
     margin-top: 50px;
-    margin-bottom: 100vh;
     padding: 20px;
     background-color: #f9f9f9;
     border: 1px solid #ddd;
@@ -465,6 +471,10 @@ footer {
     .chat-input {
         width: calc(100vw - 40px);
         left: 20px;
+    }
+
+    .iphone {
+        visibility: collapse;
     }
 
 }

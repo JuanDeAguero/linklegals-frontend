@@ -7,6 +7,7 @@ const Home = () => <div className="landing-page">
         <div className="title">Innovation to Empower</div>
         <div className="subtitle">Harnessing AI to create Practical Solutions for Everyday Challanges</div>
         <Link to="/about" className="learn-more">Learn More</Link>
+        <img className="iphone" src="iphone.png" />
     </div>
 </div>
 
@@ -178,7 +179,7 @@ const Services = ({ isMobile, showMenu }) => {
         <img className="about-img" src="img5.jpg" />
         <div className="about-text">At LinkLegals, we understand how important clear communication is during your USCIS interviews. Currently, we offer interpretation services for USCIS interviews in the Baltimore and Fairfax Field Offices, with plans to expand our reach. To help you feel confident and prepared, our services include:</div>
         <div className="about-text"><span className="about-text-underline">Pre-Interview Practice:</span> Sessions to cover what to expect, personal questions, and civic exam practice, ensuring readiness for every aspect of the interview process.</div>
-        <div className="about-text about-last">For more information, email us at <span className="about-text-underline">interpretation@LinkLegals.com</span>. We're here to support you every step of the way!</div>
+        <div className="about-text">For more information, email us at <span className="about-text-underline">interpretation@LinkLegals.com</span>. We're here to support you every step of the way!</div>
     </div>
     )
 }
