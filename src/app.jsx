@@ -179,7 +179,7 @@ const Services = ({ isMobile, showMenu }) => {
         <img className="about-img" src="img5.jpg" />
         <div className="about-text">At LinkLegals, we understand how important clear communication is during your USCIS interviews. Currently, we offer interpretation services for USCIS interviews in the Baltimore and Fairfax Field Offices, with plans to expand our reach. To help you feel confident and prepared, our services include:</div>
         <div className="about-text"><span className="about-text-underline">Pre-Interview Practice:</span> Sessions to cover what to expect, personal questions, and civic exam practice, ensuring readiness for every aspect of the interview process.</div>
-        <div className="about-text">For more information, email us at <span className="about-text-underline">interpretation@LinkLegals.com</span>. We're here to support you every step of the way!</div>
+        <div className="about-text services-last">For more information, email us at <span className="about-text-underline">interpretation@LinkLegals.com</span>. We're here to support you every step of the way!</div>
     </div>
     )
 }
@@ -244,7 +244,7 @@ const Contact = ({ isMobile, showMenu }) => {
             <div className="about-text"><span className="about-text-bold">Media and Press Inquiries:</span> For media and press inquiries, please contact our media relations team: <span className="about-text-underline">press@linklegals.com</span></div>
             <div className="about-text">You can also use our contact form on this page. We look forward to connecting with you!</div>
 
-            <form className="contact-form" onSubmit={handleSubmit}>
+            <form className="contact-form services-last" onSubmit={handleSubmit}>
                 <div className="form-group">
                     <label htmlFor="name">Name</label>
                     <input
@@ -358,8 +358,15 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
         sentMessageRef.current.scrollIntoView({ behavior: 'smooth' });
       }
     }, [messages]);
+
+    const [loggedIn, setLoggedIn] = useState(false)
+
+    const onChatAccessClicked = () => {
+        setLoggedIn(true)
+    }
   
     return (
+    <>
       <div
         className="page"
         style={{
@@ -367,6 +374,13 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
           height: showMenu && isMobile ? 'calc(100vh - 60px)' : 'auto'
         }}
       >
+        {!loggedIn ? <div className="chat-access-wrapper">
+            <div className="chat-access">
+                <div className="chat-access-title">Enter access key</div>
+                <input className="chat-access-input" placeholder=""/>
+                <button className="chat-access-button" onClick={onChatAccessClicked}>Start</button>
+            </div>
+        </div> : null}
         <div className="chat">
           {messages.map((message, index) => (
             <div
@@ -392,8 +406,10 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
               SEND
             </button>
           </div>
+          <div className="chat-start-text">Let's get started building your case. What do you need help with?</div>
         </div>
       </div>
+      </>
     );
   };
   

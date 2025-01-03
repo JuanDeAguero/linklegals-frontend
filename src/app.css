@@ -10,6 +10,7 @@ nav {
     display: flex;
     justify-content: center;
     backdrop-filter: blur(300px);
+    z-index: 2;
 }
 .nav-content {
     height: 100%;
@@ -133,7 +134,10 @@ footer {
     width: 200px;
 }
 .about-last {
-    margin-bottom: 100vh;
+    margin-bottom: 50vh;
+}
+.services-last {
+    margin-bottom: 50px;
 }
 .about-title {
     font-size: 30px;
@@ -217,6 +221,7 @@ footer {
 }
 .about-guide-mobile-title {
     width: 1000px;
+    margin-left: -15px;
 }
 
 
@@ -298,11 +303,11 @@ footer {
 
 
 .chat {
-    margin-bottom: calc(100vh * 2);
     width: 100%;
     padding-top: 50px;
     display: flex;
     flex-direction: column;
+    margin-bottom: 200px;
 }
 .chat-message-right, .chat-message-left {
     background-color: rgb(230, 230, 230);
@@ -328,7 +333,8 @@ footer {
     border-radius: 20px;
     position: fixed;
     bottom: 20px;
-    left: calc((100vw - 1000px) / 2);
+    left: calc(((100vw - 1000px) / 2) - 0px);
+    overflow: visible;
 }
 .chat-input-text {
     width: 100%;
@@ -378,7 +384,61 @@ footer {
     }
   }
   
-
+.chat-access-wrapper {
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.chat-access {
+    background-color: rgb(0, 0, 255, 0.2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    width: 100%;
+}
+.chat-access-title {
+    font-size: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.chat-access-input {
+    font-size: 17px;
+    border-radius: 5px;
+    height: 40px;
+    border-style: solid;
+    margin-bottom: 10px;
+    padding-left: 15px;
+}
+.chat-access-button {
+    background-color: rgb(0, 102, 255);
+    color: white;
+    padding-left: 20px;
+    padding-right: 20px;
+    height: 40px;
+    align-items: center;
+    border-radius: 20px;
+    margin-bottom: 10px;
+}
+.chat-access-button:hover {
+    background-color: rgb(50, 132, 255);
+}
+.chat-start-text {
+    position: absolute;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    top: -100px;
+    font-size: 18px;
+    text-align: center;
+}
 
 
 
@@ -391,6 +451,12 @@ footer {
         width: 100%;
         position: relative;
         overflow: visible;
+    }
+    .chat-access-wrapper {
+        z-index: 0;
+    }
+    .chat-input {
+        z-index: -1;
     }
     .menu {
         visibility: visible;
@@ -477,10 +543,11 @@ footer {
     }
 
     .iphone {
-        opacity: 0.2;
+        opacity: 0.15;
         top: -50px;
         right: -500px;
         z-index: -1;
     }
 
 }
+
