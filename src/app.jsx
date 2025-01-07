@@ -321,7 +321,7 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
   const onChatAccessClicked = async () => {
     try {
       // 1. Request a new thread from your server
-      const response = await fetch("http://localhost:3000/thread", {
+      const response = await fetch("http://35.159.31.223:3000/thread", {
         method: "GET",
       });
       if (!response.ok) {
@@ -380,7 +380,7 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
 
     try {
       // 4. POST the user’s message to your server, along with the threadId
-      const response = await fetch("http://localhost:3000/message", {
+      const response = await fetch("http://35.159.31.223:3000/message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
