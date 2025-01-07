@@ -305,147 +305,154 @@ const Contact = ({ isMobile, showMenu }) => {
     )
 }
 
+
 const BuildYourCase = ({ isMobile, showMenu }) => {
   const [messages, setMessages] = useState([]);
-  const [inputValue, setInputValue] = useState('');
+  const [inputValue, setInputValue] = useState("");
   const [isLoadingReply, setIsLoadingReply] = useState(false);
+
   const [loggedIn, setLoggedIn] = useState(false);
   const [showStartText, setShowStartText] = useState(false);
 
-  const [threadId, setThreadId] = useState(null); // Store the thread ID from the server
+  const [threadId, setThreadId] = useState(null);
   const sentMessageRef = useRef(null);
 
-  // ─────────────────────────────────────────────────────────
-  // 1) Create a Thread when the user logs in or component mounts
-  // ─────────────────────────────────────────────────────────
-  const createThread = async () => {
+  // When the user clicks "Start", create a new thread and set loggedIn to true
+  const onChatAccessClicked = async () => {
     try {
-      const response = await fetch('http://3.73.133.156:3000/thread');
-      const data = await response.json();
-      // data should look like: { threadId: "abc123" }
-      setThreadId(data.threadId);
-      console.log("Thread created, ID:", data.threadId);
-    } catch (error) {
-      console.error("Error creating thread:", error);
-    }
-  };
-
-  // ─────────────────────────────────────────────────────────
-  // 2) Send Message to the Server
-  // ─────────────────────────────────────────────────────────
-  const postMessage = async (threadId, userMessage) => {
-    try {
-      const response = await fetch('http://3.73.133.156:3000/message', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          threadId: threadId,
-          message: userMessage
-        }),
+      // 1. Request a new thread from your server
+      const response = await fetch("http://localhost:3000/thread", {
+        method: "GET",
       });
+      if (!response.ok) {
+        throw new Error(
+          `Error creating thread: ${response.status} ${response.statusText}`
+        );
+      }
       const data = await response.json();
-      // data should look like: { messages: ["Hello", "World"] }
-      return data.messages; 
+      const newThreadId = data.threadId;
+
+      // 2. Store the new threadId in state
+      setThreadId(newThreadId);
+      console.log(newThreadId)
+
+      // 3. Now the user is considered "logged in" for chat
+      setLoggedIn(true);
+      setShowStartText(true);
     } catch (error) {
-      console.error("Error sending message:", error);
-      return [];
+      console.error("An error occurred while creating a new thread:", error);
     }
   };
 
-  // ─────────────────────────────────────────────────────────
-  // 3) Handle the user’s “Send” action
-  // ─────────────────────────────────────────────────────────
-  const sendMessage = async () => {
-    if (!loggedIn) return;
-    if (!threadId) {
-      alert("No thread ID available. Please refresh or try again.");
-      return;
-    }
-    if (!inputValue.trim()) return;
-
-    // Hide the start text once we begin chatting
-    setShowStartText(false);
-
-    // 3a) Add the user's message (right side)
-    const userMsgObj = {
-      text: inputValue,
-      side: 'right',
-      id: Date.now()
-    };
-    setMessages((prev) => [...prev, userMsgObj]);
-
-    // 3b) Clear input, show loading spinner
-    setInputValue('');
-    setIsLoadingReply(true);
-
-    // 3c) Call the server
-    const serverMessages = await postMessage(threadId, userMsgObj.text);
-
-    // 3d) Combine all messages
-    //    The server returns the entire conversation as an array of strings
-    //    Convert them to { text, side: 'left' } for display
-    const newConversation = serverMessages.map((msg, index) => ({
-      text: msg,
-      side: 'left',
-      id: Date.now() + index
-    }));
-
-    // 3e) Update state: user messages + the entire server conversation
-    //    You can decide if you want to display only what the server returns
-    //    or the combined set. Here, we show everything, but rely on the
-    //    server's messages as the ultimate "source of truth."
-    setMessages((prev) => {
-      // Keep the user's messages + the server’s updated conversation
-      // to avoid doubling up if the server includes the user's last message.
-      return [...prev, ...newConversation];
-    });
-
-    setIsLoadingReply(false);
-  };
-
-  // ─────────────────────────────────────────────────────────
-  // 4) (Optional) Export case to PDF (dummy local link)
-  // ─────────────────────────────────────────────────────────
   const handleExportCaseAsPDF = () => {
-    const link = document.createElement('a');
-    link.href = '/case.pdf'; 
-    link.download = 'case.pdf';
+    const link = document.createElement("a");
+    link.href = "/case.pdf";
+    link.download = "case.pdf";
     link.click();
   };
 
-  // ─────────────────────────────────────────────────────────
-  // 5) Scroll the chat into view whenever messages change
-  // ─────────────────────────────────────────────────────────
+  const sendMessage = async () => {
+    // Don’t proceed if the user isn’t logged in or the input is empty
+    if (!loggedIn || !threadId) return;
+    if (!inputValue.trim()) return;
+
+    setShowStartText(false);
+
+    // Create a new user-sent message
+    const newMessage = {
+      text: inputValue,
+      side: "right",
+      id: Date.now(),
+    };
+
+    // Create a temporary loading message
+    const loadingMessage = {
+      text: "",
+      side: "left",
+      id: Date.now() + 1,
+      isLoading: true,
+    };
+
+    // Add the user message + loading message to state
+    setMessages((prev) => [...prev, newMessage, loadingMessage]);
+    setInputValue("");
+    setIsLoadingReply(true);
+
+    try {
+      // 4. POST the user’s message to your server, along with the threadId
+      const response = await fetch("http://localhost:3000/message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: newMessage.text,
+          threadId,
+        }),
+      });
+
+      const data = await response.json();
+
+      console.log(data)
+
+      // data should contain the AI/bot reply from your server, e.g. data.reply
+      const serverReply = {
+        text: data.messages[0][0].text.value ?? "No response received.",
+        side: "left",
+        id: Date.now() + 2,
+      };
+
+      // Remove loading message and add the actual server message
+      setMessages((prevMessages) => {
+        // Filter out any loading messages before adding the final reply
+        const filteredMessages = prevMessages.filter(
+          (m) => m.id !== loadingMessage.id
+        );
+        return [...filteredMessages, serverReply];
+      });
+    } catch (error) {
+      console.error("An error occurred while sending the message:", error);
+
+      // You could optionally remove loading message and add an error message
+      setMessages((prevMessages) =>
+        prevMessages.filter((m) => m.id !== loadingMessage.id)
+      );
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          text: "Error sending message. Please try again later.",
+          side: "left",
+          id: Date.now() + 2,
+        },
+      ]);
+    } finally {
+      setIsLoadingReply(false);
+    }
+  };
+
+  // Whenever messages change, scroll to the bottom
   useEffect(() => {
     if (sentMessageRef.current) {
-      sentMessageRef.current.scrollIntoView({ behavior: 'smooth' });
+      sentMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
-
-  // ─────────────────────────────────────────────────────────
-  // 6) "Login" or "Enter Access Key" simulation
-  // ─────────────────────────────────────────────────────────
-  const onChatAccessClicked = () => {
-    setLoggedIn(true);
-    setShowStartText(true);
-    createThread(); // create a new thread upon “login”
-  };
 
   return (
     <>
       <div
         className="page"
         style={{
-          overflow: showMenu && isMobile ? 'hidden' : 'auto',
-          height: showMenu && isMobile ? 'calc(100vh - 60px)' : 'auto'
+          overflow: showMenu && isMobile ? "hidden" : "auto",
+          height: showMenu && isMobile ? "calc(100vh - 60px)" : "auto",
         }}
       >
-        {/* If not logged in, show a prompt to enter access key */}
         {!loggedIn ? (
           <div className="chat-access-wrapper">
             <div className="chat-access">
               <div className="chat-access-title">Enter access key</div>
-              <input className="chat-access-input" placeholder="" />
+              <input
+                className="chat-access-input"
+                placeholder=""
+                // If you want to handle an actual "access key", you could store it in state
+              />
               <button className="chat-access-button" onClick={onChatAccessClicked}>
                 Start
               </button>
@@ -453,64 +460,63 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
           </div>
         ) : null}
 
-        {/* The main chat area */}
         <div className="chat">
-          {messages.map((message, index) => (
-            <div
-              key={message.id}
-              ref={message.side === 'right' && index === messages.length - 1 ? sentMessageRef : null}
-              className={
-                (message.side === 'right'
-                  ? 'chat-message-right'
-                  : 'chat-message-left') +
-                ' ' +
-                (message.type === 'title' ? 'chat-message-title' : '') +
-                ' ' +
-                (message.type === 'bullet' ? 'chat-message-bullet' : '')
-              }
-            >
-              {message.isLoading ? <div className="loading-spinner"></div> : message.text}
-            </div>
-          ))}
+          {messages.map((message, index) => {
+            // We’ll assign ref only to the last “right” message so that we can scroll
+            const isLastRightMessage =
+              message.side === "right" && index === messages.length - 2;
+            return (
+              <div
+                key={message.id}
+                ref={isLastRightMessage ? sentMessageRef : null}
+                className={
+                  (message.side === "right" ? "chat-message-right" : "chat-message-left") +
+                  " " +
+                  (message.type === "title" ? "chat-message-title" : "") +
+                  " " +
+                  (message.type === "bullet" ? "chat-message-bullet" : "")
+                }
+              >
+                {message.isLoading ? (
+                  <div className="loading-spinner"></div>
+                ) : (
+                  message.text
+                )}
+              </div>
+            );
+          })}
         </div>
 
-        {/* The input area */}
-        {loggedIn && (
-          <div className="chat-input">
-            <input
-              className="chat-input-text"
-              type="text"
-              placeholder="Message Q..."
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-            />
-            <div className="chat-bottom">
-              <button
-                className="chat-send-button chat-export-button"
-                onClick={handleExportCaseAsPDF}
-              >
-                Export case as PDF
-              </button>
-              <button className="chat-send-button" onClick={sendMessage}>
-                SEND
-              </button>
-            </div>
-            {showStartText && (
-              <div className="chat-start-text">
-                Let's get started building your case. What do you need help with?
-              </div>
-            )}
+        <div className="chat-input">
+          <input
+            className="chat-input-text"
+            type="text"
+            placeholder="Message Q..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          />
+          <div className="chat-bottom">
+            <button
+              className="chat-send-button chat-export-button"
+              onClick={handleExportCaseAsPDF}
+            >
+              Export case as PDF
+            </button>
+            <button className="chat-send-button" onClick={sendMessage}>
+              SEND
+            </button>
           </div>
-        )}
-
-        {/* Loading indicator if waiting for server */}
-        {isLoadingReply && <div className="loading-indicator">Loading response...</div>}
+          {showStartText && (
+            <div className="chat-start-text">
+              Let&apos;s get started building your case. What do you need help with?
+            </div>
+          )}
+        </div>
       </div>
     </>
   );
 };
-  
 
 const BackgroundGradient = () => {
     const location = useLocation()
