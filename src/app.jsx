@@ -1,4 +1,4 @@
-import "./app.css"
+import "./App.css"
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom"
 import { useRef, useState, useEffect } from "react"
 import { type } from "@testing-library/user-event/dist/type"
@@ -306,133 +306,132 @@ const Contact = ({ isMobile, showMenu }) => {
 }
 
 const BuildYourCase = ({ isMobile, showMenu }) => {
-    const [messages, setMessages] = useState([]);
-    const [inputValue, setInputValue] = useState('');
-    const [isLoadingReply, setIsLoadingReply] = useState(false);
-    const sentMessageRef = useRef(null);
+  const [messages, setMessages] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isLoadingReply, setIsLoadingReply] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [showStartText, setShowStartText] = useState(false);
 
-    const [loggedIn, setLoggedIn] = useState(false)
-    const [showStartText, setShowStartText] = useState(false)
+  const [threadId, setThreadId] = useState(null); // Store the thread ID from the server
+  const sentMessageRef = useRef(null);
 
+  // ─────────────────────────────────────────────────────────
+  // 1) Create a Thread when the user logs in or component mounts
+  // ─────────────────────────────────────────────────────────
+  const createThread = async () => {
+    try {
+      const response = await fetch('http://3.73.133.156:3000/thread');
+      const data = await response.json();
+      // data should look like: { threadId: "abc123" }
+      setThreadId(data.threadId);
+      console.log("Thread created, ID:", data.threadId);
+    } catch (error) {
+      console.error("Error creating thread:", error);
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────
+  // 2) Send Message to the Server
+  // ─────────────────────────────────────────────────────────
+  const postMessage = async (threadId, userMessage) => {
+    try {
+      const response = await fetch('http://3.73.133.156:3000/message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          threadId: threadId,
+          message: userMessage
+        }),
+      });
+      const data = await response.json();
+      // data should look like: { messages: ["Hello", "World"] }
+      return data.messages; 
+    } catch (error) {
+      console.error("Error sending message:", error);
+      return [];
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────
+  // 3) Handle the user’s “Send” action
+  // ─────────────────────────────────────────────────────────
+  const sendMessage = async () => {
+    if (!loggedIn) return;
+    if (!threadId) {
+      alert("No thread ID available. Please refresh or try again.");
+      return;
+    }
+    if (!inputValue.trim()) return;
+
+    // Hide the start text once we begin chatting
+    setShowStartText(false);
+
+    // 3a) Add the user's message (right side)
+    const userMsgObj = {
+      text: inputValue,
+      side: 'right',
+      id: Date.now()
+    };
+    setMessages((prev) => [...prev, userMsgObj]);
+
+    // 3b) Clear input, show loading spinner
+    setInputValue('');
+    setIsLoadingReply(true);
+
+    // 3c) Call the server
+    const serverMessages = await postMessage(threadId, userMsgObj.text);
+
+    // 3d) Combine all messages
+    //    The server returns the entire conversation as an array of strings
+    //    Convert them to { text, side: 'left' } for display
+    const newConversation = serverMessages.map((msg, index) => ({
+      text: msg,
+      side: 'left',
+      id: Date.now() + index
+    }));
+
+    // 3e) Update state: user messages + the entire server conversation
+    //    You can decide if you want to display only what the server returns
+    //    or the combined set. Here, we show everything, but rely on the
+    //    server's messages as the ultimate "source of truth."
+    setMessages((prev) => {
+      // Keep the user's messages + the server’s updated conversation
+      // to avoid doubling up if the server includes the user's last message.
+      return [...prev, ...newConversation];
+    });
+
+    setIsLoadingReply(false);
+  };
+
+  // ─────────────────────────────────────────────────────────
+  // 4) (Optional) Export case to PDF (dummy local link)
+  // ─────────────────────────────────────────────────────────
   const handleExportCaseAsPDF = () => {
     const link = document.createElement('a');
-    link.href = '/case.pdf';
+    link.href = '/case.pdf'; 
     link.download = 'case.pdf';
     link.click();
   };
-  
-    const sendMessage = () => {
 
-        if (!loggedIn) return
-
-      if (!inputValue.trim()) return
-
-      setShowStartText(false)
-  
-      const newMessage = {
-        text: inputValue,
-        side: 'right',
-        id: Date.now()
-      };
-  
-      const loadingMessage = {
-        text: '',
-        side: 'left',
-        id: Date.now() + 1,
-        isLoading: true
-      };
-  
-      setInputValue('');
-      setMessages((prev) => [...prev, newMessage, loadingMessage]);
-      setIsLoadingReply(true);
-    };
-  
-    useEffect(() => {
-      let timer;
-      if (isLoadingReply) {
-        timer = setTimeout(() => {
-          setMessages((prev) => {
-            const withoutLoading = prev.filter((m) => !m.isLoading);
-            return [
-              ...withoutLoading,
-              {
-                text: "Case Type: Immigration (Family-Based Petition)",
-                side: 'left',
-                type: "title",
-                id: Date.now()
-              },
-              {
-                text: "Summary",
-                side: 'left',
-                type: "title",
-                id: Date.now()
-              },
-              {
-                text: "The client, Maria Lopez, a 30-year-old lawful permanent resident (LPR), is seeking to petition for her spouse, Carlos Lopez, a 32-year-old citizen of Mexico, to join her in the United States. Carlos is currently residing in Mexico. Maria and Carlos married in 2019 and have maintained a continuous and bona fide marital relationship since. Maria has stable employment in the U.S., earning approximately $45,000 annually.",
-                side: 'left',
-                id: Date.now()
-              },
-              {
-                text: "Risk Factors:",
-                side: 'left',
-                id: Date.now()
-              },
-              {
-                text: "Maria became a lawful permanent resident only two years ago. The timeline might raise additional questions about her marital relationship, requiring strong evidence to prove the bona fides of the marriage.",
-                side: 'left',
-                type: "bullet",
-                id: Date.now()
-              },
-              {
-                text: "Carlos previously overstayed a U.S. visa by six months in 2016, which could complicate his admissibility.",
-                side: 'left',
-                type: "bullet",
-                id: Date.now()
-              },
-              {
-                text: "Additional Background",
-                side: 'left',
-                type: "title",
-                id: Date.now()
-              },
-              {
-                text: "Maria obtained her LPR status through an employment-based green card. She is currently employed as a teacher in Arizona. The couple has maintained contact through visits, phone records, and remittances, all of which can be documented. Carlos has no criminal history in either Mexico or the United States, and the overstay in 2016 was his only immigration violation.",
-                side: 'left',
-                id: Date.now()
-              },
-              {
-                text: "Documents Available",
-                side: 'left',
-                type: "title",
-                id: Date.now()
-              },
-              {
-                text: "Marriage Certificate - No",
-                side: 'left',
-                id: Date.now()
-              },
-            ];
-          });
-          setIsLoadingReply(false);
-        }, 2000);
-      }
-  
-      return () => clearTimeout(timer);
-    }, [isLoadingReply]);
-  
-    useEffect(() => {
-      if (sentMessageRef.current) {
-        sentMessageRef.current.scrollIntoView({ behavior: 'smooth' });
-      }
-    }, [messages]);
-
-
-    const onChatAccessClicked = () => {
-        setLoggedIn(true)
-        setShowStartText(true)
+  // ─────────────────────────────────────────────────────────
+  // 5) Scroll the chat into view whenever messages change
+  // ─────────────────────────────────────────────────────────
+  useEffect(() => {
+    if (sentMessageRef.current) {
+      sentMessageRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  
-    return (
+  }, [messages]);
+
+  // ─────────────────────────────────────────────────────────
+  // 6) "Login" or "Enter Access Key" simulation
+  // ─────────────────────────────────────────────────────────
+  const onChatAccessClicked = () => {
+    setLoggedIn(true);
+    setShowStartText(true);
+    createThread(); // create a new thread upon “login”
+  };
+
+  return (
     <>
       <div
         className="page"
@@ -441,47 +440,76 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
           height: showMenu && isMobile ? 'calc(100vh - 60px)' : 'auto'
         }}
       >
-        {!loggedIn ? <div className="chat-access-wrapper">
+        {/* If not logged in, show a prompt to enter access key */}
+        {!loggedIn ? (
+          <div className="chat-access-wrapper">
             <div className="chat-access">
-                <div className="chat-access-title">Enter access key</div>
-                <input className="chat-access-input" placeholder=""/>
-                <button className="chat-access-button" onClick={onChatAccessClicked}>Start</button>
+              <div className="chat-access-title">Enter access key</div>
+              <input className="chat-access-input" placeholder="" />
+              <button className="chat-access-button" onClick={onChatAccessClicked}>
+                Start
+              </button>
             </div>
-        </div> : null}
+          </div>
+        ) : null}
+
+        {/* The main chat area */}
         <div className="chat">
           {messages.map((message, index) => (
             <div
               key={message.id}
-              ref={message.side === 'right' && index === messages.length - 2 ? sentMessageRef : null}
-              className={(message.side === 'right' ? 'chat-message-right' : 'chat-message-left') + " " + (message.type === "title" ? "chat-message-title" : "") + " " + (message.type === "bullet" ? "chat-message-bullet" : "")}
+              ref={message.side === 'right' && index === messages.length - 1 ? sentMessageRef : null}
+              className={
+                (message.side === 'right'
+                  ? 'chat-message-right'
+                  : 'chat-message-left') +
+                ' ' +
+                (message.type === 'title' ? 'chat-message-title' : '') +
+                ' ' +
+                (message.type === 'bullet' ? 'chat-message-bullet' : '')
+              }
             >
               {message.isLoading ? <div className="loading-spinner"></div> : message.text}
             </div>
           ))}
         </div>
-        <div className="chat-input">
-          <input
-            className="chat-input-text"
-            type="text"
-            placeholder="Message Q..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-          />
-          <div className="chat-bottom">
-            <button className="chat-send-button chat-export-button" onClick={handleExportCaseAsPDF}>
-              Export case as PDF
-            </button>
-            <button className="chat-send-button" onClick={sendMessage}>
-              SEND
-            </button>
+
+        {/* The input area */}
+        {loggedIn && (
+          <div className="chat-input">
+            <input
+              className="chat-input-text"
+              type="text"
+              placeholder="Message Q..."
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+            />
+            <div className="chat-bottom">
+              <button
+                className="chat-send-button chat-export-button"
+                onClick={handleExportCaseAsPDF}
+              >
+                Export case as PDF
+              </button>
+              <button className="chat-send-button" onClick={sendMessage}>
+                SEND
+              </button>
+            </div>
+            {showStartText && (
+              <div className="chat-start-text">
+                Let's get started building your case. What do you need help with?
+              </div>
+            )}
           </div>
-          {showStartText ? <div className="chat-start-text">Let's get started building your case. What do you need help with?</div> : null}
-        </div>
+        )}
+
+        {/* Loading indicator if waiting for server */}
+        {isLoadingReply && <div className="loading-indicator">Loading response...</div>}
       </div>
-      </>
-    );
-  };
+    </>
+  );
+};
   
 
 const BackgroundGradient = () => {

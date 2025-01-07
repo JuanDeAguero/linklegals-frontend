@@ -337,7 +337,8 @@ footer {
     padding-left: 30px;
 }
 .chat-input {
-    background-color: rgb(200, 200, 200);
+    background-color: rgb(200, 200, 200, 0.7);
+    backdrop-filter: blur(7px);
     height: 100px;
     width: 1000px;
     display: flex;
