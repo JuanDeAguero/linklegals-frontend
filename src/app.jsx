@@ -1,4 +1,4 @@
-import "./App.css"
+import "./app.css"
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom"
 import { useRef, useState, useEffect } from "react"
 import { type } from "@testing-library/user-event/dist/type"
