@@ -392,7 +392,7 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
       }
   
       // Compile LaTeX to PDF
-      const pdfResponse = await fetch("http://localhost:3000/compile-latex", {
+      const pdfResponse = await fetch(serverUrl + "compile-latex", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ latex: latexResponse }),
