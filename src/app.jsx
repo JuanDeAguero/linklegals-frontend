@@ -4,8 +4,8 @@ import { useRef, useState, useEffect } from "react"
 
 import { PDFDocument, StandardFonts } from 'pdf-lib'
 
-//const serverUrl = "https://linklegals.net/"
-const serverUrl = "http://localhost:3000/"
+const serverUrl = "https://linklegals.net/"
+//const serverUrl = "http://localhost:3000/"
 
 const Home = () => <div className="landing-page">
     <div className="landing-page-content">
