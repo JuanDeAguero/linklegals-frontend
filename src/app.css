@@ -370,9 +370,16 @@ footer {
     color: white;
     border-radius: 20px;
     margin-right: 10px;
+    overflow: visible;
 }
 .chat-send-button:hover {
     background-color: rgb(50, 132, 255);
+}
+.loader {
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 .chat-export-button {
     background-color: gray;

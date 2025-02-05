@@ -2,7 +2,7 @@ import "./app.css"
 import { BrowserRouter as Router, Routes, Route, Link, useLocation } from "react-router-dom"
 import { useRef, useState, useEffect } from "react"
 
-import { PDFDocument, StandardFonts } from 'pdf-lib'
+import { SyncLoader } from "react-spinners";
 
 const serverUrl = "https://linklegals.net/"
 //const serverUrl = "http://localhost:3000/"
@@ -321,6 +321,8 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
   const [threadId, setThreadId] = useState(null)
   const sentMessageRef = useRef(null)
 
+  const [isExporting, setIsExporting] = useState(false);
+
   // When the user clicks "Start", create a new thread and set loggedIn to true
   const onChatAccessClicked = async () => {
     try {
@@ -362,22 +364,13 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
   const loadingMessageId = useRef(null);
 
 
-  
   const handleExportCaseAsPDF = async () => {
-    if (!loggedIn || !threadId) return;
+    if (!loggedIn || !threadId || isExporting) return;
+  
+    setIsExporting(true); // Start loading
   
     try {
-      // Show loading animation
-      const newLoadingMessage = {
-        text: "",
-        side: "left",
-        id: Date.now(),
-        isLoading: true,
-      };
-      loadingMessageId.current = newLoadingMessage.id;
-      setMessages((prev) => [...prev, newLoadingMessage]);
-  
-      // Send hidden message directly to server to get LaTeX response
+      // Send hidden message to get LaTeX response
       const response = await fetch(serverUrl + "message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -390,17 +383,15 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
       const data = await response.json();
       let latexResponse = data.messages?.[0]?.[0]?.text?.value || "";
   
-      // Remove ```latex and ``` markers if they exist
+      // Clean LaTeX response
       if (latexResponse.startsWith("```latex")) {
-        latexResponse = latexResponse.slice(8); // Remove the first 8 characters (```latex)
+        latexResponse = latexResponse.slice(8);
       }
       if (latexResponse.endsWith("```")) {
-        latexResponse = latexResponse.slice(0, -3); // Remove the last 3 characters (```)
+        latexResponse = latexResponse.slice(0, -3);
       }
   
-      console.log(latexResponse); // Log the cleaned LaTeX response
-  
-      // Send LaTeX code to backend for compilation
+      // Compile LaTeX to PDF
       const pdfResponse = await fetch("http://localhost:3000/compile-latex", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -411,7 +402,7 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
         throw new Error("Failed to compile LaTeX to PDF");
       }
   
-      // Convert the response to a Blob and download it
+      // Download the PDF
       const pdfBlob = await pdfResponse.blob();
       const url = window.URL.createObjectURL(pdfBlob);
       const a = document.createElement("a");
@@ -423,10 +414,15 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Export error:", error);
+
     } finally {
-      // Remove loading animation
-      setMessages((prev) => prev.filter((msg) => msg.id !== loadingMessageId.current));
-      loadingMessageId.current = null;
+      // If no error, stop loading immediately
+      if (!isExporting) {
+        setTimeout(() => {
+    
+            setIsExporting(false); // Stop loading after 3 seconds
+          }, 3000);
+      }
     }
   };
 
@@ -594,8 +590,13 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
           <button
             className="chat-send-button chat-export-button"
             onClick={handleExportCaseAsPDF}
+            disabled={isExporting} // Disable button while exporting
           >
-            Export case as PDF
+            {isExporting ? (
+              <SyncLoader className="loader" size={8} color="#ffffff" /> // Use SyncLoader for loading animation
+            ) : (
+              "Export case as PDF"
+            )}
           </button>
             <button className="chat-send-button" onClick={() => sendMessage(inputValue)}>
               SEND
