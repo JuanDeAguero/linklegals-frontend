@@ -577,3 +577,16 @@ footer {
 
 }
 
+.text-bold {
+    font-weight: 500;
+}
+.text-title * {
+    font-size: 20px;
+}
+.text-subtitle * {
+    font-size: 18px;
+    font-weight: 400;
+}
+.text-list-item {
+    padding-left: 10px;
+}

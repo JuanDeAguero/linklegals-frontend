@@ -4,8 +4,8 @@ import { useRef, useState, useEffect } from "react"
 
 import { SyncLoader } from "react-spinners";
 
-const serverUrl = "https://linklegals.net/"
-//const serverUrl = "http://localhost:3000/"
+//const serverUrl = "https://linklegals.net/"
+const serverUrl = "http://localhost:3000/"
 
 const Home = () => <div className="landing-page">
     <div className="landing-page-content">
@@ -310,99 +310,155 @@ const Contact = ({ isMobile, showMenu }) => {
 }
 
 
+
 const BuildYourCase = ({ isMobile, showMenu }) => {
-  const [messages, setMessages] = useState([])
-  const [inputValue, setInputValue] = useState("")
-  const [isLoadingReply, setIsLoadingReply] = useState(false)
-
-  const [loggedIn, setLoggedIn] = useState(false)
-  const [showStartText, setShowStartText] = useState(false)
-
-  const [threadId, setThreadId] = useState(null)
-  const sentMessageRef = useRef(null)
-
+  const [messages, setMessages] = useState([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isLoadingReply, setIsLoadingReply] = useState(false);
+  const [loggedIn, setLoggedIn] = useState(false);
+  const [showStartText, setShowStartText] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const sentMessageRef = useRef(null);
 
-  // When the user clicks "Start", create a new thread and set loggedIn to true
   const onChatAccessClicked = async () => {
-    try {
-      // 1. Request a new thread from your server
-      const response = await fetch(serverUrl + "thread", {
-        method: "GET",
-      })
-      if (!response.ok) {
-        throw new Error(
-          `Error creating thread: ${response.status} ${response.statusText}`
-        )
-      }
-      const data = await response.json()
-      const newThreadId = data.threadId
+    setLoggedIn(true);
+    setShowStartText(true);
+  };
 
-      // 2. Store the new threadId in state
-      setThreadId(newThreadId)
-      console.log(newThreadId)
+  const latexPrompt = `Convert the previous answer into a complete, standalone LaTeX document. Provide only the LaTeX code without any additional text, explanations, or comments. Ensure the response includes:
+    1. A \\documentclass declaration (use article class unless specified otherwise).
+    2. All necessary packages (e.g., \\usepackage{geometry}, \\usepackage{amsmath}, etc.).
+    3. Proper document structure with \\begin{document} and \\end{document}.
+    4. Proper formatting for text, headings, lists, tables, or any other elements present in the answer.
+    5. No additional text like "Here is your LaTeX code" or "Copy and paste this into Overleaf"—just the raw LaTeX code.
+    `;
 
-      // 3. Now the user is considered "logged in" for chat
-      setLoggedIn(true)
-      setShowStartText(true)
-    } catch (error) {
-      console.error("An error occurred while creating a new thread:", error)
-    }
+  function createMultilineMessages(text) {
+    const lines = text.split("\n");
+    const nonEmptyLines = lines.filter((line) => line.trim() !== "");
+    return nonEmptyLines.map((line) => ({
+      text: line,
+      side: "left",
+      id: Date.now() + Math.random(),
+    }));
   }
 
-  const latexPrompt = `
-      Convert the previous answer into a complete, standalone LaTeX document. Provide only the LaTeX code without any additional text, explanations, or comments. Ensure the response includes:
-      1. A \\documentclass declaration (use article class unless specified otherwise).
-      2. All necessary packages (e.g., \\usepackage{geometry}, \\usepackage{amsmath}, etc.).
-      3. Proper document structure with \\begin{document} and \\end{document}.
-      4. Proper formatting for text, headings, lists, tables, or any other elements present in the answer.
-      5. No additional text like "Here is your LaTeX code" or "Copy and paste this into Overleaf"—just the raw LaTeX code.
+  // Helper function that applies bold formatting for *...* and **...**
+  const renderBoldText = (text) => {
+    const parts = text.split(/(\*{1,2}[^*]+?\*{1,2})/g);
+    return parts.map((part, index) => {
+      // Match if the part is wrapped in one or two asterisks.
+      const match = part.match(/^(\*{1,2})([^*]+)\1$/);
+      if (match) {
+        return <strong className="text-bold" key={index}>{match[2]}</strong>;
+      }
+      return <span key={index}>{part}</span>;
+    });
+  };
 
-      The output should be ready to copy-paste directly into Overleaf or any LaTeX editor to produce a properly formatted PDF document.
-      `;
+  // Extended formatter: detect header markers and list markers, then apply the appropriate className.
+  const renderFormattedText = (text) => {
+    if (text.startsWith("####")) {
+      // Render as subtitle: remove the header markers and trim whitespace.
+      return (
+        <div className="text-subtitle">
+          {renderBoldText(text.slice(4).trim())}
+        </div>
+      );
+    } else if (text.startsWith("###")) {
+      // Render as title: remove the header markers and trim whitespace.
+      return (
+        <div className="text-title">
+          {renderBoldText(text.slice(3).trim())}
+        </div>
+      );
+    } else if (/^\d+\./.test(text)) {
+      // Render as a list item if text starts with a number followed by a period.
+      return (
+        <div className="text-list-item">
+          <div>{renderBoldText(text)}</div>
+        </div>
+      );
+    }
+    return renderBoldText(text);
+  };
 
-  const loadingMessageId = useRef(null);
-
-
-  const handleExportCaseAsPDF = async () => {
-    if (!loggedIn || !threadId || isExporting) return;
-  
-    setIsExporting(true); // Start loading
-  
+  const sendMessage = async (messageText) => {
+    if (!loggedIn || !messageText.trim()) return;
+    setShowStartText(false);
+    const newMessage = { text: messageText, side: "right", id: Date.now() };
+    const loadingMessage = { text: "", side: "left", id: Date.now() + 1, isLoading: true };
+    setMessages((prev) => [...prev, newMessage, loadingMessage]);
+    setInputValue("");
+    setIsLoadingReply(true);
     try {
-      // Send hidden message to get LaTeX response
+      const conversationForApi = [
+        ...messages
+          .filter((m) => !m.isLoading)
+          .map((m) => ({
+            role: m.side === "right" ? "user" : "assistant",
+            content: m.text,
+          })),
+        { role: "user", content: messageText }
+      ];
       const response = await fetch(serverUrl + "message", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: latexPrompt,
-          threadId,
-        }),
+        body: JSON.stringify({ conversation: conversationForApi })
       });
-  
       const data = await response.json();
-      let latexResponse = data.messages?.[0]?.[0]?.text?.value || "";
-  
-      // Clean LaTeX response
+      setMessages((prevMessages) => prevMessages.filter((m) => m.id !== loadingMessage.id));
+      const serverReplyText = data.reply || "";
+      const multilineMessages = createMultilineMessages(serverReplyText);
+      setMessages((prevMessages) => [...prevMessages, ...multilineMessages]);
+    } catch (error) {
+      console.error("An error occurred while sending the message:", error);
+      setMessages((prevMessages) => prevMessages.filter((m) => m.id !== loadingMessage.id));
+      setMessages((prevMessages) => [
+        ...prevMessages,
+        {
+          text: "Error sending message. Please try again later.",
+          side: "left",
+          id: Date.now() + Math.random()
+        }
+      ]);
+    } finally {
+      setIsLoadingReply(false);
+    }
+  };
+
+  const handleExportCaseAsPDF = async () => {
+    if (!loggedIn || isExporting) return;
+    setIsExporting(true);
+    try {
+      const conversationForExport = [
+        ...messages
+          .filter((m) => !m.isLoading)
+          .map((m) => ({
+            role: m.side === "right" ? "user" : "assistant",
+            content: m.text,
+          })),
+        { role: "user", content: latexPrompt }
+      ];
+      const response = await fetch(serverUrl + "message", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversation: conversationForExport })
+      });
+      const data = await response.json();
+      let latexResponse = data.reply || "";
       if (latexResponse.startsWith("```latex")) {
         latexResponse = latexResponse.slice(8);
       }
       if (latexResponse.endsWith("```")) {
         latexResponse = latexResponse.slice(0, -3);
       }
-  
-      // Compile LaTeX to PDF
       const pdfResponse = await fetch(serverUrl + "compile-latex", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ latex: latexResponse }),
+        body: JSON.stringify({ latex: latexResponse })
       });
-  
-      if (!pdfResponse.ok) {
-        throw new Error("Failed to compile LaTeX to PDF");
-      }
-  
-      // Download the PDF
+      if (!pdfResponse.ok) throw new Error("Failed to compile LaTeX to PDF");
       const pdfBlob = await pdfResponse.blob();
       const url = window.URL.createObjectURL(pdfBlob);
       const a = document.createElement("a");
@@ -414,204 +470,92 @@ const BuildYourCase = ({ isMobile, showMenu }) => {
       window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error("Export error:", error);
-
     } finally {
-      // If no error, stop loading immediately
-      if (!isExporting) {
-        setTimeout(() => {
-    
-            setIsExporting(false); // Stop loading after 3 seconds
-          }, 3000);
-      }
+      setTimeout(() => {
+        setIsExporting(false);
+      }, 3000);
     }
   };
 
-
-  const exportPending = useRef(false);
-
-  function createMultilineMessages(text) {
-    // 1) Split on newline
-    const lines = text.split("\n")
-  
-    // 2) Filter out empty lines (like those from "\n\n")
-    const nonEmptyLines = lines.filter((line) => line.trim() !== "")
-  
-    // 3) For each line, create a new message object
-    const messagesArray = nonEmptyLines.map((line) => ({
-      text: line,
-      side: "left",
-      id: Date.now() + Math.random(), // unique id
-    }))
-  
-    return messagesArray
-  }
-  
-
-  const sendMessage = async (messageText) => {
-    if (!loggedIn || !threadId) return;
-    if (!messageText.trim()) return;
-  
-    setShowStartText(false);
-  
-    // Create a new user-sent message
-    const newMessage = {
-      text: messageText,
-      side: "right",
-      id: Date.now(),
-    };
-  
-    // Create a temporary loading message
-    const loadingMessage = {
-      text: "",
-      side: "left",
-      id: Date.now() + 1,
-      isLoading: true,
-    };
-  
-    // Add the user message + loading message to state
-    setMessages((prev) => [...prev, newMessage, loadingMessage]);
-    setInputValue("");
-    setIsLoadingReply(true);
-  
-    try {
-      // POST the user’s message to your server
-      const response = await fetch(serverUrl + "message", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: messageText,
-          threadId,
-        }),
-      });
-  
-      const data = await response.json();
-  
-      // Remove the loading message
-      setMessages((prevMessages) =>
-        prevMessages.filter((m) => m.id !== loadingMessage.id)
-      );
-  
-      // Process the server's response
-      const serverReplyText = data.messages?.[0]?.[0]?.text?.value || "";
-      const multilineMessages = createMultilineMessages(serverReplyText);
-  
-      // Append them to existing messages
-      setMessages((prevMessages) => [...prevMessages, ...multilineMessages]);
-    } catch (error) {
-      console.error("An error occurred while sending the message:", error);
-      // Remove loading message and show error
-      setMessages((prevMessages) =>
-        prevMessages.filter((m) => m.id !== loadingMessage.id)
-      );
-      setMessages((prevMessages) => [
-        ...prevMessages,
-        {
-          text: "Error sending message. Please try again later.",
-          side: "left",
-          id: Date.now() + Math.random(),
-        },
-      ]);
-    } finally {
-      setIsLoadingReply(false);
-    }
-  };
-
-
-
-  // Whenever messages change, scroll to the bottom
   useEffect(() => {
     if (sentMessageRef.current) {
-      sentMessageRef.current.scrollIntoView({ behavior: "smooth" })
+      sentMessageRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [messages])
+  }, [messages]);
 
   return (
-    <>
-      <div
-        className="page"
-        style={{
-          overflow: showMenu && isMobile ? "hidden" : "auto",
-          height: showMenu && isMobile ? "calc(100vh - 60px)" : "auto",
-        }}
-      >
-        {!loggedIn ? (
-          <div className="chat-access-wrapper">
-            <div className="chat-access">
-              <div className="chat-access-title">Enter access key</div>
-              <input
-                className="chat-access-input"
-                placeholder=""
-                // If you want to handle an actual "access key", you could store it in state
-              />
-              <button className="chat-access-button" onClick={onChatAccessClicked}>
-                Start
-              </button>
-            </div>
+    <div
+      className="page"
+      style={{
+        overflow: showMenu && isMobile ? "hidden" : "auto",
+        height: showMenu && isMobile ? "calc(100vh - 60px)" : "auto"
+      }}
+    >
+      {!loggedIn && (
+        <div className="chat-access-wrapper">
+          <div className="chat-access">
+            <div className="chat-access-title">Enter access key</div>
+            <input className="chat-access-input" placeholder="" />
+            <button className="chat-access-button" onClick={onChatAccessClicked}>
+              Start
+            </button>
           </div>
-        ) : null}
-
-        <div className="chat">
-          {messages.map((message, index) => {
-            // We’ll assign ref only to the last “right” message so that we can scroll
-            const isLastRightMessage =
-              message.side === "right" && index === messages.length - 2
-            return (
-              <div
-                key={message.id}
-                ref={isLastRightMessage ? sentMessageRef : null}
-                className={
-                  (message.side === "right" ? "chat-message-right" : "chat-message-left") +
-                  " " +
-                  (message.type === "title" ? "chat-message-title" : "") +
-                  " " +
-                  (message.type === "bullet" ? "chat-message-bullet" : "")
-                }
-              >
-                {message.isLoading ? (
-                  <div className="loading-spinner"></div>
-                ) : (
-                  message.text
-                )}
-              </div>
-            )
-          })}
         </div>
-
-        <div className="chat-input">
-          <input
-            className="chat-input-text"
-            type="text"
-            placeholder="Message Q..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && sendMessage()}
-          />
-          <div className="chat-bottom">
+      )}
+      <div className="chat">
+        {messages.map((message, index) => {
+          const isLastRightMessage = message.side === "right" && index === messages.length - 2;
+          return (
+            <div
+              key={message.id}
+              ref={isLastRightMessage ? sentMessageRef : null}
+              className={`${message.side === "right" ? "chat-message-right" : "chat-message-left"} ${message.type === "title" ? "chat-message-title" : ""} ${message.type === "bullet" ? "chat-message-bullet" : ""}`}
+            >
+              {message.isLoading ? (
+                <div className="loading-spinner"></div>
+              ) : (
+                renderFormattedText(message.text)
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <div className="chat-input">
+        <input
+          className="chat-input-text"
+          type="text"
+          placeholder="Message Q..."
+          value={inputValue}
+          onChange={(e) => setInputValue(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage(inputValue)}
+        />
+        <div className="chat-bottom">
           <button
             className="chat-send-button chat-export-button"
             onClick={handleExportCaseAsPDF}
-            disabled={isExporting} // Disable button while exporting
+            disabled={isExporting}
           >
             {isExporting ? (
-              <SyncLoader className="loader" size={8} color="#ffffff" /> // Use SyncLoader for loading animation
+              <SyncLoader className="loader" size={8} color="#ffffff" />
             ) : (
               "Export case as PDF"
             )}
           </button>
-            <button className="chat-send-button" onClick={() => sendMessage(inputValue)}>
-              SEND
-            </button>
-          </div>
-          {showStartText && (
-            <div className="chat-start-text">
-              Let&apos;s get started building your case. What do you need help with?
-            </div>
-          )}
+          <button className="chat-send-button" onClick={() => sendMessage(inputValue)}>
+            SEND
+          </button>
         </div>
+        {showStartText && (
+          <div className="chat-start-text">
+            Let's get started building your case. What do you need help with?
+          </div>
+        )}
       </div>
-    </>
-  )
-}
+    </div>
+  );
+};
+
+
 
 const BackgroundGradient = () => {
     const location = useLocation()
