@@ -1,31 +1,31 @@
 * {
-    border-style: none;
-    color: black;
-    flex: none;
-    font-family: Roboto;
-    font-size: 15px;
-    font-weight: 400;
-    margin: 0;
-    overflow-x: hidden;
-    padding: 0;
-    text-decoration: none;
-    box-sizing: border-box;
+  border-style: none;
+  color: black;
+  flex: none;
+  font-family: Roboto;
+  font-size: 15px;
+  font-weight: 400;
+  margin: 0;
+  overflow-x: hidden;
+  padding: 0;
+  text-decoration: none;
+  box-sizing: border-box;
 }
 div {
-    background-color: transparent;
+  background-color: transparent;
 }
 div * {
-    background-color: transparent;
+  background-color: transparent;
 }
 button {
-    display: flex;
+  display: flex;
 }
 button * {
-    text-align: start;
+  text-align: start;
 }
 button:hover {
-    cursor: pointer;
+  cursor: pointer;
 }
 html {
-    zoom: 1.0;
+  zoom: 1.0;
 }
